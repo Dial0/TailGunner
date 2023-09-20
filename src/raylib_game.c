@@ -12,6 +12,7 @@
 ********************************************************************************************/
 
 #include "raylib.h"
+#include "raymath.h"
 
 #if defined(PLATFORM_WEB)
     #define CUSTOM_MODAL_DIALOGS            // Force custom modal dialogs usage
@@ -52,8 +53,7 @@ typedef enum {
 static const int screenWidth = 1024;
 static const int screenHeight = 768;
 
-static unsigned int screenScale = 1; 
-static unsigned int prevScreenScale = 1;
+static Vector2 shipPos;
 
 static RenderTexture2D target = { 0 };  // Initialized at init
 
@@ -76,7 +76,6 @@ int main(void)
     // Initialization
     //--------------------------------------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "raylib 9yr gamejam");
-    SetWindowSize(screenWidth*screenScale, screenHeight*screenScale);
     
     // TODO: Load resources / Initialize variables at this point
     
@@ -90,7 +89,7 @@ int main(void)
 #else
     SetTargetFPS(60);     // Set our game frames-per-second
     //--------------------------------------------------------------------------------------
-
+    shipPos = (Vector2){ screenWidth / 2,screenHeight / 2 };
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button
     {
@@ -114,48 +113,55 @@ int main(void)
 // Module functions definition
 //--------------------------------------------------------------------------------------------
 // Update and draw frame
+
+void DrawShip(Vector2 pos, Vector2 tar) {
+
+    int triangleSize = 20;
+
+    Vector2 dir = Vector2Normalize(Vector2Subtract(tar, pos));
+
+    Vector2 front = Vector2Add((Vector2){pos.x,pos.y}, Vector2Scale(dir, (float)triangleSize));
+    Vector2 back = Vector2Subtract((Vector2) { pos.x, pos.y }, Vector2Scale(dir, (float)triangleSize));
+
+    Vector2 leftNormal = Vector2Normalize((Vector2) { -dir.y,dir.x });
+    Vector2 rightNormal = Vector2Normalize((Vector2) { dir.y,-dir.x });
+
+    Vector2 leftPoint = Vector2Add(back,Vector2Scale(leftNormal, (float)triangleSize));
+    Vector2 rightPoint = Vector2Add(back, Vector2Scale(rightNormal, (float)triangleSize));
+
+    DrawTriangle(leftPoint, front, rightPoint, RED);
+}
+
 void UpdateDrawFrame(void)
 {
-    // Update
-    //----------------------------------------------------------------------------------
-    // Screen scale logic (x2)
-    if (IsKeyPressed(KEY_ONE)) screenScale = 1;
-    else if (IsKeyPressed(KEY_TWO)) screenScale = 2;
-    else if (IsKeyPressed(KEY_THREE)) screenScale = 3;
-    
-    if (screenScale != prevScreenScale)
-    {
-        // Scale window to fit the scaled render texture
-        SetWindowSize(screenWidth*screenScale, screenHeight*screenScale);
-        
-        // Scale mouse proportionally to keep input logic inside the 256x256 screen limits
-        SetMouseScale(1.0f/(float)screenScale, 1.0f/(float)screenScale);
-        
-        prevScreenScale = screenScale;
+
+    Vector2 dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
+    Vector2 leftNormal = Vector2Normalize((Vector2) { -dir.y, dir.x });
+    Vector2 rightNormal = Vector2Normalize((Vector2) { dir.y, -dir.x });
+
+    float velocity = 4.0f;
+
+    if (IsKeyDown(KEY_W)) {
+        shipPos = Vector2Add(shipPos, Vector2Scale(dir, velocity));
     }
-
-    // TODO: Update variables / Implement example logic at this point
-    //----------------------------------------------------------------------------------
-
-    // Draw
-    //----------------------------------------------------------------------------------
-    // Render all screen to texture (for scaling)
-    BeginTextureMode(target);
-        ClearBackground(RAYWHITE);
-        
-        // TODO: Draw screen at 256x256
-        DrawRectangle(10, 10, screenWidth - 20, screenHeight - 20, SKYBLUE);
-        
-    EndTextureMode();
+    if (IsKeyDown(KEY_S)) {
+        shipPos = Vector2Add(shipPos, Vector2Scale(dir, -velocity));
+    }
+    if (IsKeyDown(KEY_A)) {
+        shipPos = Vector2Add(shipPos, Vector2Scale(leftNormal, velocity));
+    }
+    if (IsKeyDown(KEY_D)) {
+        shipPos = Vector2Add(shipPos, Vector2Scale(rightNormal, velocity));
+    }
     
     BeginDrawing();
         ClearBackground(RAYWHITE);
         
         // Draw render texture to screen scaled as required
-        DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Rectangle){ 0, 0, (float)target.texture.width*screenScale, (float)target.texture.height*screenScale }, (Vector2){ 0, 0 }, 0.0f, WHITE);
-
         // Draw equivalent mouse position on the target render-texture
         DrawCircleLines(GetMouseX(), GetMouseY(), 10, MAROON);
+
+        DrawShip(shipPos, (Vector2) { GetMouseX(), GetMouseY() });
 
         // TODO: Draw everything that requires to be drawn at this point:
 
