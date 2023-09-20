@@ -114,21 +114,21 @@ void DrawShip(Vector2 pos, Vector2 tar) {
     Vector2 front = Vector2Add((Vector2){pos.x,pos.y}, Vector2Scale(dir, (float)triangleSize));
     Vector2 back = Vector2Subtract((Vector2) { pos.x, pos.y }, Vector2Scale(dir, (float)triangleSize));
 
-    Vector2 leftNormal = Vector2Normalize((Vector2) { -dir.y,dir.x });
-    Vector2 rightNormal = Vector2Normalize((Vector2) { dir.y,-dir.x });
+    Vector2 leftNormal = Vector2Normalize((Vector2) { dir.y,-dir.x });
+    Vector2 rightNormal = Vector2Normalize((Vector2) { -dir.y,dir.x });
 
     Vector2 leftPoint = Vector2Add(back,Vector2Scale(leftNormal, (float)triangleSize));
     Vector2 rightPoint = Vector2Add(back, Vector2Scale(rightNormal, (float)triangleSize));
 
-    DrawTriangle(leftPoint, front, rightPoint, RED);
+    DrawTriangle(rightPoint, front, leftPoint, RED);
 }
 
 void UpdateDrawFrame(void)
 {
 
     Vector2 dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
-    Vector2 leftNormal = Vector2Normalize((Vector2) { -dir.x, dir.y });
-    Vector2 rightNormal = Vector2Normalize((Vector2) { dir.x, -dir.y });
+    Vector2 leftNormal = Vector2Normalize((Vector2) { dir.y, -dir.x });
+    Vector2 rightNormal = Vector2Normalize((Vector2) { -dir.y, dir.x });
 
     float velocity = 4.0f;
 
