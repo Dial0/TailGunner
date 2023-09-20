@@ -50,12 +50,9 @@ typedef enum {
 //----------------------------------------------------------------------------------
 // Global Variables Definition
 //----------------------------------------------------------------------------------
-static const int screenWidth = 1024;
-static const int screenHeight = 768;
+
 
 static Vector2 shipPos;
-
-static RenderTexture2D target = { 0 };  // Initialized at init
 
 // TODO: Define global variables here, recommended to make them static
 
@@ -72,17 +69,12 @@ int main(void)
 #if !defined(_DEBUG)
     SetTraceLogLevel(LOG_NONE);         // Disable raylib trace log messsages
 #endif
-
+    static const int screenWidth = 1024;
+    static const int screenHeight = 768;
     // Initialization
     //--------------------------------------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "raylib 9yr gamejam");
     
-    // TODO: Load resources / Initialize variables at this point
-    
-    // Render texture to draw full screen, enables screen scaling
-    // NOTE: If screen is scaled, mouse input should be scaled proportionally
-    target = LoadRenderTexture(screenWidth, screenHeight);
-    SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
@@ -99,7 +91,6 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadRenderTexture(target);
     
     // TODO: Unload all loaded resources at this point
 
