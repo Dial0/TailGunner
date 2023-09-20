@@ -147,7 +147,7 @@ void UpdateDrawFrame(void)
     
     BeginDrawing();
         ClearBackground(RAYWHITE);
-        
+        DrawFPS(0, 0);
         // Draw render texture to screen scaled as required
         // Draw equivalent mouse position on the target render-texture
         DrawCircleLines(GetMouseX(), GetMouseY(), 10, MAROON);
