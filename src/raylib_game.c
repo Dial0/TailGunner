@@ -74,14 +74,14 @@ int main(void)
     // Initialization
     //--------------------------------------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "raylib 9yr gamejam");
-    
+    shipPos = (Vector2){ screenWidth / 2,screenHeight / 2 };
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
 #else
     SetTargetFPS(60);     // Set our game frames-per-second
     //--------------------------------------------------------------------------------------
-    shipPos = (Vector2){ screenWidth / 2,screenHeight / 2 };
+    
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button
     {
