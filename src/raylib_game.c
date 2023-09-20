@@ -52,8 +52,8 @@ typedef enum {
 static const int screenWidth = 1024;
 static const int screenHeight = 768;
 
-static unsigned int screenScale = 2; 
-static unsigned int prevScreenScale = 2;
+static unsigned int screenScale = 1; 
+static unsigned int prevScreenScale = 1;
 
 static RenderTexture2D target = { 0 };  // Initialized at init
 
