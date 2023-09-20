@@ -127,8 +127,8 @@ void UpdateDrawFrame(void)
 {
 
     Vector2 dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
-    Vector2 leftNormal = Vector2Normalize((Vector2) { -dir.y, dir.x });
-    Vector2 rightNormal = Vector2Normalize((Vector2) { dir.y, -dir.x });
+    Vector2 leftNormal = Vector2Normalize((Vector2) { -dir.x, dir.y });
+    Vector2 rightNormal = Vector2Normalize((Vector2) { dir.x, -dir.y });
 
     float velocity = 4.0f;
 
