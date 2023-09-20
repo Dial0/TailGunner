@@ -49,8 +49,8 @@ typedef enum {
 //----------------------------------------------------------------------------------
 // Global Variables Definition
 //----------------------------------------------------------------------------------
-static const int screenWidth = 256;
-static const int screenHeight = 256;
+static const int screenWidth = 1024;
+static const int screenHeight = 768;
 
 static unsigned int screenScale = 2; 
 static unsigned int prevScreenScale = 2;
