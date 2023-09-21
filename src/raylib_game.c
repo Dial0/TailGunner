@@ -93,6 +93,7 @@ int main(void)
     // Initialization
     //--------------------------------------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "raylib 9yr gamejam");
+    target = LoadRenderTexture(screenWidth, screenHeight);
     shipPos = (Vector2){ screenWidth / 2,screenHeight / 2 };
     shipTex = LoadTexture("resources/ship.png");
     effects = LoadTexture("resources/effects.png");
