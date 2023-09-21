@@ -53,6 +53,8 @@ typedef enum {
 
 
 static Vector2 shipPos;
+static Texture2D shipTex;
+static Texture2D effects;
 
 // TODO: Define global variables here, recommended to make them static
 
@@ -75,7 +77,8 @@ int main(void)
     //--------------------------------------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "raylib 9yr gamejam");
     shipPos = (Vector2){ screenWidth / 2,screenHeight / 2 };
-
+    shipTex = LoadTexture("resources/ship.png");
+    effects = LoadTexture("resources/effects.png");
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
 #else
@@ -132,17 +135,23 @@ void UpdateDrawFrame(void)
 
     float velocity = 4.0f;
 
+    int thrusters = 0b0000;
+
     if (IsKeyDown(KEY_W)) {
         shipPos = Vector2Add(shipPos, Vector2Scale(dir, velocity));
+        thrusters |= 0b1000;
     }
     if (IsKeyDown(KEY_S)) {
         shipPos = Vector2Add(shipPos, Vector2Scale(dir, -velocity));
+        thrusters |= 0b0100;
     }
     if (IsKeyDown(KEY_A)) {
         shipPos = Vector2Add(shipPos, Vector2Scale(leftNormal, velocity));
+        thrusters |= 0b0010;
     }
     if (IsKeyDown(KEY_D)) {
         shipPos = Vector2Add(shipPos, Vector2Scale(rightNormal, velocity));
+        thrusters |= 0b0001;
     }
     
     BeginDrawing();
@@ -152,9 +161,45 @@ void UpdateDrawFrame(void)
         // Draw equivalent mouse position on the target render-texture
         DrawCircleLines(GetMouseX(), GetMouseY(), 10, MAROON);
 
-        DrawShip(shipPos, (Vector2) { GetMouseX(), GetMouseY() });
+        //DrawShip(shipPos, (Vector2) { GetMouseX(), GetMouseY() });
+        float rotShip = Vector2Angle((Vector2) { 0,-1 }, dir);
+        float rotShipDeg = -rotShip * (180 / PI);
+        float shipScale = 1.0f;
+        DrawTexturePro(shipTex, (Rectangle){0,0, shipTex.width,shipTex.height},
+            (Rectangle) { shipPos.x, shipPos.y, shipTex.width*shipScale, shipTex.height* shipScale},
+            (Vector2) {(float)shipTex.width* shipScale /2, (float)shipTex.height* shipScale /2 }, rotShipDeg, WHITE);
+        
+        Rectangle thrustSprSrc = { 121, 29, 9, 12 };
 
-        // TODO: Draw everything that requires to be drawn at this point:
+        if (thrusters & 0b1000) {
+            DrawTexturePro(effects, thrustSprSrc,
+                (Rectangle) {shipPos.x, shipPos.y, 9, 12},
+                (Vector2) { (float)9 / 2, ((float)12 / 2) - (shipTex.height * shipScale) +6 }, rotShipDeg, WHITE);
+        }
+        if (thrusters & 0b0100) {
+            DrawTexturePro(effects, thrustSprSrc,
+                (Rectangle) { shipPos.x, shipPos.y, 9, 12 },
+                (Vector2) { (float)9 / 2, ((float)12 / 2) - (shipTex.height * shipScale) +4 }, rotShipDeg +180.0f, WHITE);
+        }
+        if (thrusters & 0b0010) {
+            DrawTexturePro(effects, thrustSprSrc,
+                (Rectangle) {
+                shipPos.x, shipPos.y, 9, 12
+            },
+                (Vector2) {
+                (float)9 / 2, ((float)12 / 2) - (shipTex.width * shipScale) + 3
+            }, rotShipDeg - 90.0f, WHITE);
+        }
+        if (thrusters & 0b0001) {
+            DrawTexturePro(effects, thrustSprSrc,
+                (Rectangle) {
+                shipPos.x, shipPos.y, 9, 12
+            },
+                (Vector2) {
+                (float)9 / 2, ((float)12 / 2) - (shipTex.width * shipScale) + 3
+            }, rotShipDeg + 90.0f, WHITE);
+        }
+
 
     EndDrawing();
     //----------------------------------------------------------------------------------  
