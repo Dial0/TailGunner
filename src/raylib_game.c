@@ -55,6 +55,23 @@ typedef enum {
 static Vector2 shipPos;
 static Texture2D shipTex;
 static Texture2D effects;
+static Vector2 lastDir = {0};
+
+
+typedef struct Bullet {
+    Vector2 pos;
+    Vector2 dir;
+    float vel;
+} Bullet;
+
+static int bulletidx = 0;
+#define MAX_BULLETS 100
+#define SCREENWIDTH 1024
+#define SCREENHEIGHT 768
+static Bullet bullets[100];
+
+static int ballMove = 0;
+static int ballMoveDir = 0;
 
 // TODO: Define global variables here, recommended to make them static
 
@@ -71,8 +88,8 @@ int main(void)
 #if !defined(_DEBUG)
     SetTraceLogLevel(LOG_NONE);         // Disable raylib trace log messsages
 #endif
-    static const int screenWidth = 1024;
-    static const int screenHeight = 768;
+    static const int screenWidth = SCREENWIDTH;
+    static const int screenHeight = SCREENHEIGHT;
     // Initialization
     //--------------------------------------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "raylib 9yr gamejam");
@@ -128,12 +145,24 @@ void DrawShip(Vector2 pos, Vector2 tar) {
 
 void UpdateDrawFrame(void)
 {
+    float velocity = 4.0f;
+    Vector2 dir = { 0 };
+    float cursDist = Vector2Distance((Vector2) { GetMouseX(), GetMouseY() }, shipPos);
+    if (cursDist > 20.0f) {
+        dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
+        lastDir = dir;
+    } else {
+        dir = lastDir;
+        velocity = 0.0f;
+    }
 
-    Vector2 dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
+
+
+    //Vector2 dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
     Vector2 leftNormal = Vector2Normalize((Vector2) { dir.y, -dir.x });
     Vector2 rightNormal = Vector2Normalize((Vector2) { -dir.y, dir.x });
 
-    float velocity = 4.0f;
+    
 
     int thrusters = 0b0000;
 
@@ -153,9 +182,42 @@ void UpdateDrawFrame(void)
         shipPos = Vector2Add(shipPos, Vector2Scale(rightNormal, velocity));
         thrusters |= 0b0001;
     }
+
+    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+        bullets[bulletidx].dir = dir;
+        bullets[bulletidx].pos = shipPos;
+        bullets[bulletidx].vel = 8.0f;
+        bulletidx += 1;
+        if (bulletidx >= MAX_BULLETS) {
+            bulletidx = 0;
+        }
+    }
+
+    for (int i = 0; i < bulletidx; i++) {
+        bullets[i].pos = Vector2Add(bullets[i].pos, Vector2Scale(bullets[i].dir, bullets[i].vel));
+    }
+
+    if (ballMoveDir == 0) {
+        ballMove += 2;
+        if (ballMove > 300) {
+            ballMoveDir = 1;
+        }
+    } else {
+        ballMove -= 2;
+        if (ballMove < -300) {
+            ballMoveDir = 0;
+        }
+    }
     
     BeginDrawing();
         ClearBackground(RAYWHITE);
+
+        DrawCircle(SCREENWIDTH / 2 + 30, SCREENHEIGHT / 2, 60, BLUE);
+
+        DrawCircle(SCREENWIDTH / 2 + 250, SCREENHEIGHT / 2 + 220, 20, YELLOW);
+
+        DrawCircle(SCREENWIDTH / 2 - 250, SCREENHEIGHT / 2 + ballMove, 20, RED);
+
         DrawFPS(0, 0);
         // Draw render texture to screen scaled as required
         // Draw equivalent mouse position on the target render-texture
@@ -165,6 +227,16 @@ void UpdateDrawFrame(void)
         float rotShip = Vector2Angle((Vector2) { 0,-1 }, dir);
         float rotShipDeg = -rotShip * (180 / PI);
         float shipScale = 1.0f;
+
+        Rectangle bulletSprSrc = { 4, 42, 4, 12 };
+        for (int i = 0; i < bulletidx; i++) {
+            float rotBul = Vector2Angle((Vector2) { 0, -1 }, bullets[i].dir);
+            float rotBulDeg = -rotBul * (180 / PI);
+            Rectangle bulSprDst = { bullets[i].pos.x, bullets[i].pos.y, bulletSprSrc.width,bulletSprSrc.height };
+            Vector2 org = { (float)bulletSprSrc.width / 2, (float)bulletSprSrc.height / 2 };
+            DrawTexturePro(shipTex, bulletSprSrc, bulSprDst, org, rotBulDeg, WHITE);
+        }
+
         DrawTexturePro(shipTex, (Rectangle){0,0, shipTex.width,shipTex.height},
             (Rectangle) { shipPos.x, shipPos.y, shipTex.width*shipScale, shipTex.height* shipScale},
             (Vector2) {(float)shipTex.width* shipScale /2, (float)shipTex.height* shipScale /2 }, rotShipDeg, WHITE);
