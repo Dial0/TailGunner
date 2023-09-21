@@ -74,7 +74,7 @@ static int ballMove = 0;
 static int ballMoveDir = 0;
 
 // TODO: Define global variables here, recommended to make them static
-
+static RenderTexture2D target = { 0 };  // Initialized at init
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
@@ -210,7 +210,8 @@ void UpdateDrawFrame(void)
         }
     }
     
-    BeginDrawing();
+    //BeginDrawing();
+    BeginTextureMode(target);
         ClearBackground(RAYWHITE);
 
         DrawCircle(SCREENWIDTH / 2 + 30, SCREENHEIGHT / 2, 60, BLUE);
@@ -274,6 +275,11 @@ void UpdateDrawFrame(void)
         }
 
 
+    //EndDrawing();
+    EndTextureMode();
+    BeginDrawing();
+        ClearBackground(RAYWHITE);
+        DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Rectangle){ 0, 0, (float)target.texture.width, (float)target.texture.height }, (Vector2){ 0, 0 }, 0.0f, WHITE);
     EndDrawing();
     //----------------------------------------------------------------------------------  
 }
