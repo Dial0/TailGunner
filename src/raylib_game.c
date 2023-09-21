@@ -280,7 +280,8 @@ void UpdateDrawFrame(void)
     BeginDrawing();
         ClearBackground(RAYWHITE);
         Rectangle tarSrc = { 0, 0, (float)target.texture.width, -(float)target.texture.height };
-        DrawTexturePro(target.texture, (Rectangle), (Rectangle){ 0, 0, (float)target.texture.width, (float)target.texture.height }, (Vector2){ 0, 0 }, 0.0f, WHITE);
+        Rectangle dst = { 0, 0, (float)target.texture.width, (float)target.texture.height };
+        DrawTexturePro(target.texture, tarSrc, dst, (Vector2){ 0, 0 }, 0.0f, WHITE);
     EndDrawing();
     //----------------------------------------------------------------------------------  
 }
