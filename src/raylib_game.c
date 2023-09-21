@@ -146,27 +146,28 @@ void DrawShip(Vector2 pos, Vector2 tar) {
 void UpdateDrawFrame(void)
 {
     float velocity = 4.0f;
-    Vector2 dir = { 0 };
-    float cursDist = Vector2Distance((Vector2) { GetMouseX(), GetMouseY() }, shipPos);
-    if (cursDist > 20.0f) {
-        dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
-        lastDir = dir;
-    } else {
-        dir = lastDir;
-        velocity = 0.0f;
-    }
+    //Vector2 dir = { 0 };
+    //float cursDist = Vector2Distance((Vector2) { GetMouseX(), GetMouseY() }, shipPos);
+    //if (cursDist > 20.0f) {
+    //    dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
+    //    lastDir = dir;
+    //} else {
+    //    dir = lastDir;
+    //    velocity = 0.0f;
+    //}
 
 
 
-    //Vector2 dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
+    Vector2 dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
     Vector2 leftNormal = Vector2Normalize((Vector2) { dir.y, -dir.x });
     Vector2 rightNormal = Vector2Normalize((Vector2) { -dir.y, dir.x });
 
     
 
     int thrusters = 0b0000;
-
-    if (IsKeyDown(KEY_W)) {
+    float cursDist = Vector2Distance((Vector2) { GetMouseX(), GetMouseY() }, shipPos);
+    if (IsKeyDown(KEY_W) && cursDist > 20.0f) {
+        
         shipPos = Vector2Add(shipPos, Vector2Scale(dir, velocity));
         thrusters |= 0b1000;
     }
