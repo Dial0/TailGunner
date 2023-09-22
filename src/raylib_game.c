@@ -237,6 +237,8 @@ void UpdateDrawFrame(void)
         // Draw equivalent mouse position on the target render-texture
         DrawCircleLines(GetMouseX(), GetMouseY(), 10, MAROON);
 
+        DrawCircleLines(GetMouseX(), GetMouseY(), shipTargetRadius-(deadZone/2), MAROON);
+
         //DrawShip(shipPos, (Vector2) { GetMouseX(), GetMouseY() });
         float rotShip = Vector2Angle((Vector2) { 0,-1 }, dir);
         float rotShipDeg = -rotShip * (180 / PI);
