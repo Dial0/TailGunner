@@ -165,18 +165,18 @@ void UpdateDrawFrame(void)
     Vector2 leftNormal = Vector2Normalize((Vector2) { dir.y, -dir.x });
     Vector2 rightNormal = Vector2Normalize((Vector2) { -dir.y, dir.x });
 
-    
+    float deadZone = 5.0f;
 
     int thrusters = 0b0000;
     float cursDist = Vector2Distance((Vector2) { GetMouseX(), GetMouseY() }, shipPos);
     
     if (IsKeyDown(KEY_W) && shipTargetRadius > 20.0f) {
-        shipTargetRadius -= 1;
+        shipTargetRadius -= velocity;
         //shipPos = Vector2Add(shipPos, Vector2Scale(dir, velocity));
         //thrusters |= 0b1000;
     }
     if (IsKeyDown(KEY_S)) {
-        shipTargetRadius += 1;
+        shipTargetRadius += velocity;
         //shipPos = Vector2Add(shipPos, Vector2Scale(dir, -velocity));
         //thrusters |= 0b0100;
     }
@@ -189,11 +189,11 @@ void UpdateDrawFrame(void)
         thrusters |= 0b0001;
     }
 
-    if(cursDist>shipTargetRadius){
+    if(cursDist>shipTargetRadius - deadZone){
         shipPos = Vector2Add(shipPos, Vector2Scale(dir, velocity));
         thrusters |= 0b1000;
     }
-    if(cursDist<shipTargetRadius){
+    if(cursDist<shipTargetRadius = deadZone){
         shipPos = Vector2Add(shipPos, Vector2Scale(dir, -velocity));
         thrusters |= 0b0100;
     }
