@@ -243,7 +243,7 @@ void UpdateDrawFrame(void)
 
 
         //DrawShip(shipPos, (Vector2) { GetMouseX(), GetMouseY() });
-        float rotShip = Vector2Angle(worldRotDir, dir);
+        float rotShip = ScreenRotation;
         float rotShipDeg = -rotShip * (180 / PI);
         float shipScale = 1.0f;
 
