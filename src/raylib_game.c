@@ -56,7 +56,7 @@ static Vector2 shipPos;
 static int shipTargetRadius;
 static Texture2D shipTex;
 static Texture2D effects;
-static float screenRot;
+static float screenRot = 0;
 
 typedef struct Bullet {
     Vector2 pos;
@@ -162,6 +162,7 @@ void UpdateDrawFrame(void)
     Vector2 ScreenSpaceOrigin = { SCREENWIDTH, SCREENHEIGHT };
     Vector2 RelativeCursorDir = Vector2Normalize(Vector2Subtract(ScreenSpaceCursor, ScreenSpaceOrigin));
     float ScreenRotation = Vector2Angle((Vector2){0,-1}, RelativeCursorDir);
+    screenRot += ScreenRotation;
     
     Vector2 dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
     Vector2 leftNormal = Vector2Normalize((Vector2) { dir.y, -dir.x });
@@ -301,7 +302,8 @@ void UpdateDrawFrame(void)
         Rectangle tarSrc = { 0, 0, (float)target.texture.width, -(float)target.texture.height };
         Rectangle dst = { target.texture.width/2, target.texture.height/2, (float)target.texture.width, (float)target.texture.height };
         Vector2 org = shipPos; //{GetMouseX(), GetMouseY()};
-        DrawTexturePro(target.texture, tarSrc, dst, org, rotShipDeg, WHITE);
+        float rotScreenDeg = -screenRot * (180 / PI);
+        DrawTexturePro(target.texture, tarSrc, dst, org, rotScreenDeg, WHITE);
     EndDrawing();
     //----------------------------------------------------------------------------------  
 }
