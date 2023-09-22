@@ -56,8 +56,6 @@ static Vector2 shipPos;
 static int shipTargetRadius;
 static Texture2D shipTex;
 static Texture2D effects;
-static Vector2 lastDir = {0};
-
 
 typedef struct Bullet {
     Vector2 pos;
@@ -189,11 +187,11 @@ void UpdateDrawFrame(void)
         thrusters |= 0b0001;
     }
 
-    if(cursDist>shipTargetRadius - deadZone){
+    if(cursDist>(shipTargetRadius - deadZone)){
         shipPos = Vector2Add(shipPos, Vector2Scale(dir, velocity));
         thrusters |= 0b1000;
     }
-    if(cursDist<shipTargetRadius = deadZone){
+    if(cursDist<(shipTargetRadius + deadZone)){
         shipPos = Vector2Add(shipPos, Vector2Scale(dir, -velocity));
         thrusters |= 0b0100;
     }
