@@ -147,7 +147,7 @@ void DrawShip(Vector2 pos, Vector2 tar) {
 
 void UpdateDrawFrame(void)
 {
-    float velocity = 4.0f;
+    float velocity = 0.0f;
     //Vector2 dir = { 0 };
     //float cursDist = Vector2Distance((Vector2) { GetMouseX(), GetMouseY() }, shipPos);
     //if (cursDist > 20.0f) {
