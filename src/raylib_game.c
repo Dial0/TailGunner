@@ -187,11 +187,11 @@ void UpdateDrawFrame(void)
         thrusters |= 0b0001;
     }
 
-    if(cursDist>(shipTargetRadius - deadZone)){
+    if(cursDist>(shipTargetRadius + deadZone)){
         shipPos = Vector2Add(shipPos, Vector2Scale(dir, velocity));
         thrusters |= 0b1000;
     }
-    if(cursDist<(shipTargetRadius + deadZone)){
+    if(cursDist<(shipTargetRadius - deadZone)){
         shipPos = Vector2Add(shipPos, Vector2Scale(dir, -velocity));
         thrusters |= 0b0100;
     }
