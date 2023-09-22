@@ -235,9 +235,7 @@ void UpdateDrawFrame(void)
         DrawFPS(0, 0);
         // Draw render texture to screen scaled as required
         // Draw equivalent mouse position on the target render-texture
-        DrawCircleLines(GetMouseX(), GetMouseY(), 10, MAROON);
 
-        DrawCircleLines(GetMouseX(), GetMouseY(), shipTargetRadius-(deadZone/2), MAROON);
 
         //DrawShip(shipPos, (Vector2) { GetMouseX(), GetMouseY() });
         float rotShip = Vector2Angle((Vector2) { 0,-1 }, dir);
@@ -293,6 +291,9 @@ void UpdateDrawFrame(void)
     EndTextureMode();
     BeginDrawing();
         ClearBackground(RAYWHITE);
+        DrawCircleLines(GetMouseX(), GetMouseY(), 10, MAROON);
+
+        //DrawCircleLines(GetMouseX(), GetMouseY(), shipTargetRadius-(deadZone/2), MAROON);
         Rectangle tarSrc = { 0, 0, (float)target.texture.width, -(float)target.texture.height };
         Rectangle dst = { target.texture.width/2, target.texture.height/2, (float)target.texture.width, (float)target.texture.height };
         Vector2 org = shipPos; //{GetMouseX(), GetMouseY()};
