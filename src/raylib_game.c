@@ -295,7 +295,7 @@ void UpdateDrawFrame(void)
         ClearBackground(RAYWHITE);
         Rectangle tarSrc = { 0, 0, (float)target.texture.width, -(float)target.texture.height };
         Rectangle dst = { 0, 0, (float)target.texture.width, (float)target.texture.height };
-        Vector2 org = {GetMouseX(), GetMouseY()};
+        Vector2 org = shipPos; //{GetMouseX(), GetMouseY()};
         DrawTexturePro(target.texture, tarSrc, dst, org, rotShipDeg, WHITE);
     EndDrawing();
     //----------------------------------------------------------------------------------  
