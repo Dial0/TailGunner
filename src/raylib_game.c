@@ -56,7 +56,7 @@ static Vector2 shipPos;
 static int shipTargetRadius;
 static Texture2D shipTex;
 static Texture2D effects;
-static float worldRot = 0;
+static Vector2 worldRotDir = {0,-1};
 
 typedef struct Bullet {
     Vector2 pos;
@@ -241,7 +241,7 @@ void UpdateDrawFrame(void)
 
 
         //DrawShip(shipPos, (Vector2) { GetMouseX(), GetMouseY() });
-        float rotShip = Vector2Angle((Vector2) { 0,-1 }, dir);
+        float rotShip = Vector2Angle(worldRotDir, dir);
         float rotShipDeg = -rotShip * (180 / PI);
         float shipScale = 1.0f;
 
