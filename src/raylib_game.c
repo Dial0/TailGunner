@@ -56,6 +56,7 @@ static Vector2 shipPos;
 static int shipTargetRadius;
 static Texture2D shipTex;
 static Texture2D effects;
+static float worldRot = 0;
 
 typedef struct Bullet {
     Vector2 pos;
@@ -159,8 +160,7 @@ void UpdateDrawFrame(void)
 
     Vector2 ScreenSpaceCursor = { GetMouseX(), GetMouseY() };
     Vector2 ShipRelativeCursor = Vector2Subtract(ScreenSpaceCursor, shipPos);
-    float rotShip = Vector2Angle((Vector2) { 0,-1 }, Vector2Normalize(ShipRelativeCursor));
-    Vector2 WorldSpaceCursor = Vector2Rotate(ShipRelativeCursor,rotShip);
+    Vector2 WorldSpaceCursor = Vector2Rotate(ShipRelativeCursor,worldRot);
 
     Vector2 dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
     Vector2 leftNormal = Vector2Normalize((Vector2) { dir.y, -dir.x });
