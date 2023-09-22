@@ -157,7 +157,10 @@ void UpdateDrawFrame(void)
     //    velocity = 0.0f;
     //}
 
-
+    Vector2 ScreenSpaceCursor = { GetMouseX(), GetMouseY() };
+    Vector2 ShipRelativeCursor = Vector2Subtract(ScreenSpaceCursor, shipPos);
+    float rotShip = Vector2Angle((Vector2) { 0,-1 }, Vector2Normalize(ShipRelativeCursor));
+    Vector2 WorldSpaceCursor = Vector2Rotate(ShipRelativeCursor,rotShip);
 
     Vector2 dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
     Vector2 leftNormal = Vector2Normalize((Vector2) { dir.y, -dir.x });
