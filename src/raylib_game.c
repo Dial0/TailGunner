@@ -159,7 +159,10 @@ void UpdateDrawFrame(void)
     //}
 
     Vector2 ScreenSpaceCursor = { GetMouseX(), GetMouseY() };
-    Vector2 ShipRelativeCursor = Vector2Subtract(ScreenSpaceCursor, shipPos);
+    Vector2 ScreenSpaceOrigin = { SCREENWIDTH, SCREENHEIGHT };
+    Vector2 RelativeCursorDir = Vector2Normalize(Vector2Subtract(ScreenSpaceCursor, ScreenSpaceOrigin));
+    float ScreenRotation = Vector2Angle((Vector2){0,-1}, RelativeCursorDir);
+    
     Vector2 WorldSpaceCursor = Vector2Rotate(ShipRelativeCursor,worldRot);
 
     Vector2 dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
