@@ -53,6 +53,7 @@ typedef enum {
 
 
 static Vector2 shipPos;
+static int shipTargetRadius;
 static Texture2D shipTex;
 static Texture2D effects;
 static Vector2 lastDir = {0};
@@ -97,6 +98,7 @@ int main(void)
     shipPos = (Vector2){ screenWidth / 2,screenHeight / 2 };
     shipTex = LoadTexture("resources/ship.png");
     effects = LoadTexture("resources/effects.png");
+    shipTargetRadius = 50;
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
 #else
@@ -167,14 +169,16 @@ void UpdateDrawFrame(void)
 
     int thrusters = 0b0000;
     float cursDist = Vector2Distance((Vector2) { GetMouseX(), GetMouseY() }, shipPos);
-    if (IsKeyDown(KEY_W) && cursDist > 20.0f) {
-        
-        shipPos = Vector2Add(shipPos, Vector2Scale(dir, velocity));
-        thrusters |= 0b1000;
+    
+    if (IsKeyDown(KEY_W) && shipTargetRadius > 20.0f) {
+        shipTargetRadius -= 1;
+        //shipPos = Vector2Add(shipPos, Vector2Scale(dir, velocity));
+        //thrusters |= 0b1000;
     }
     if (IsKeyDown(KEY_S)) {
-        shipPos = Vector2Add(shipPos, Vector2Scale(dir, -velocity));
-        thrusters |= 0b0100;
+        shipTargetRadius += 1;
+        //shipPos = Vector2Add(shipPos, Vector2Scale(dir, -velocity));
+        //thrusters |= 0b0100;
     }
     if (IsKeyDown(KEY_A)) {
         shipPos = Vector2Add(shipPos, Vector2Scale(leftNormal, velocity));
@@ -183,6 +187,15 @@ void UpdateDrawFrame(void)
     if (IsKeyDown(KEY_D)) {
         shipPos = Vector2Add(shipPos, Vector2Scale(rightNormal, velocity));
         thrusters |= 0b0001;
+    }
+
+    if(cursDist>shipTargetRadius){
+        shipPos = Vector2Add(shipPos, Vector2Scale(dir, velocity));
+        thrusters |= 0b1000;
+    }
+    if(cursDist<shipTargetRadius){
+        shipPos = Vector2Add(shipPos, Vector2Scale(dir, -velocity));
+        thrusters |= 0b0100;
     }
 
     if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
