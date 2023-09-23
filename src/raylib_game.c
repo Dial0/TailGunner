@@ -80,6 +80,48 @@ static RenderTexture2D target = { 0 };  // Initialized at init
 //----------------------------------------------------------------------------------
 static void UpdateDrawFrame(void);      // Update and Draw one frame
 
+Mesh GenMeshTexQuad(float size, Rectangle Src, Vector2 TexSize) {
+
+    Mesh mesh = { 0 };
+
+    mesh.vertexCount = 4;
+    mesh.triangleCount = 2;
+    mesh.vertices = (float*)RL_MALLOC(mesh.vertexCount * 3 * sizeof(float));
+    mesh.texcoords = (float*)RL_MALLOC(mesh.vertexCount * 2 * sizeof(float));
+    mesh.normals = (float*)RL_MALLOC(mesh.vertexCount * 3 * sizeof(float));
+    mesh.indices = (unsigned short*)RL_MALLOC(mesh.triangleCount * 3 * sizeof(unsigned short));
+
+    float v[12] = { 0.5f,  0.5f, 0.0f ,
+                    0.5f, -0.5f, 0.0f,
+                    -0.5f, -0.5f, 0.0f,
+                    -0.5f,  0.5f, 0.0f };
+
+    memcpy(mesh.vertices, v, 12 * sizeof(float));
+
+    float t[8] = { 1.0f, 1.0f, 
+                   1.0f, 0.0f,
+                   0.0f, 0.0f,
+                   0.0f, 1.0f };
+
+    memcpy(mesh.texcoords, t, 8 * sizeof(float));
+
+    float n[12] = { 0.0f,  0.0f, 1.0f,
+                    0.0f,  0.0f, 1.0f,
+                    0.0f,  0.0f, 1.0f,
+                    0.0f,  0.0f, 1.0f };
+
+    memcpy(mesh.normals, n, 12 * sizeof(float));
+
+    unsigned short i[6] = {0,3,2,2,1,0};
+
+
+    memcpy(mesh.indices, i, 6 * sizeof(unsigned short));
+
+    UploadMesh(&mesh, false);
+
+    return mesh;
+}
+
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -147,163 +189,24 @@ void DrawShip(Vector2 pos, Vector2 tar) {
 
 void UpdateDrawFrame(void)
 {
-    float velocity = 0.0f;
-    //Vector2 dir = { 0 };
-    //float cursDist = Vector2Distance((Vector2) { GetMouseX(), GetMouseY() }, shipPos);
-    //if (cursDist > 20.0f) {
-    //    dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
-    //    lastDir = dir;
-    //} else {
-    //    dir = lastDir;
-    //    velocity = 0.0f;
-    //}
 
-    Vector2 ScreenSpaceCursor = { GetMouseX(), GetMouseY() };
-    Vector2 ScreenSpaceOrigin = { SCREENWIDTH, SCREENHEIGHT };
-    Vector2 RelativeCursorDir = Vector2Normalize(Vector2Subtract(ScreenSpaceCursor, ScreenSpaceOrigin));
-    float ScreenRotation = Vector2Angle((Vector2){0,-1}, RelativeCursorDir);
-    screenRot += ScreenRotation;
-    
-    Vector2 dir = Vector2Normalize(Vector2Subtract((Vector2) { GetMouseX(), GetMouseY() }, shipPos));
-    Vector2 leftNormal = Vector2Normalize((Vector2) { dir.y, -dir.x });
-    Vector2 rightNormal = Vector2Normalize((Vector2) { -dir.y, dir.x });
+    Camera camera = { 0 };
+    camera.position = (Vector3){ 0.0f, 0.0f, 10.0f }; // Camera position
+    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };     // Camera looking at point
+    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)  
+    camera.fovy = 1;// Camera field-of-view Y
+    camera.projection = CAMERA_ORTHOGRAPHIC;                   // Camera mode type
+   
+    Mesh quad = GenMeshTexQuad(1, (Rectangle) { 0 }, (Vector2) { 0 });
 
-    float deadZone = 5.0f;
-
-    int thrusters = 0b0000;
-    float cursDist = Vector2Distance((Vector2) { GetMouseX(), GetMouseY() }, shipPos);
-    
-    if (IsKeyDown(KEY_W) && shipTargetRadius > 20.0f) {
-        shipTargetRadius -= velocity;
-        //shipPos = Vector2Add(shipPos, Vector2Scale(dir, velocity));
-        //thrusters |= 0b1000;
-    }
-    if (IsKeyDown(KEY_S)) {
-        shipTargetRadius += velocity;
-        //shipPos = Vector2Add(shipPos, Vector2Scale(dir, -velocity));
-        //thrusters |= 0b0100;
-    }
-    if (IsKeyDown(KEY_A)) {
-        shipPos = Vector2Add(shipPos, Vector2Scale(leftNormal, velocity));
-        thrusters |= 0b0010;
-    }
-    if (IsKeyDown(KEY_D)) {
-        shipPos = Vector2Add(shipPos, Vector2Scale(rightNormal, velocity));
-        thrusters |= 0b0001;
-    }
-
-    if(cursDist>(shipTargetRadius + deadZone)){
-        shipPos = Vector2Add(shipPos, Vector2Scale(dir, velocity));
-        thrusters |= 0b1000;
-    }
-    if(cursDist<(shipTargetRadius - deadZone)){
-        shipPos = Vector2Add(shipPos, Vector2Scale(dir, -velocity));
-        thrusters |= 0b0100;
-    }
-
-    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
-        bullets[bulletidx].dir = dir;
-        bullets[bulletidx].pos = shipPos;
-        bullets[bulletidx].vel = 8.0f;
-        bulletidx += 1;
-        if (bulletidx >= MAX_BULLETS) {
-            bulletidx = 0;
-        }
-    }
-
-    for (int i = 0; i < bulletidx; i++) {
-        bullets[i].pos = Vector2Add(bullets[i].pos, Vector2Scale(bullets[i].dir, bullets[i].vel));
-    }
-
-    if (ballMoveDir == 0) {
-        ballMove += 2;
-        if (ballMove > 300) {
-            ballMoveDir = 1;
-        }
-    } else {
-        ballMove -= 2;
-        if (ballMove < -300) {
-            ballMoveDir = 0;
-        }
-    }
-    
-    //BeginDrawing();
-    BeginTextureMode(target);
-        ClearBackground(RAYWHITE);
-
-        DrawCircle(SCREENWIDTH / 2 + 30, SCREENHEIGHT / 2, 60, BLUE);
-
-        DrawCircle(SCREENWIDTH / 2 + 250, SCREENHEIGHT / 2 + 220, 20, YELLOW);
-
-        DrawCircle(SCREENWIDTH / 2 - 250, SCREENHEIGHT / 2 + ballMove, 20, RED);
-
-        DrawFPS(0, 0);
-        // Draw render texture to screen scaled as required
-        // Draw equivalent mouse position on the target render-texture
-
-
-        //DrawShip(shipPos, (Vector2) { GetMouseX(), GetMouseY() });
-        float rotShip = ScreenRotation;
-        float rotShipDeg = -rotShip * (180 / PI);
-        float shipScale = 1.0f;
-
-        Rectangle bulletSprSrc = { 4, 42, 4, 12 };
-        for (int i = 0; i < bulletidx; i++) {
-            float rotBul = Vector2Angle((Vector2) { 0, -1 }, bullets[i].dir);
-            float rotBulDeg = -rotBul * (180 / PI);
-            Rectangle bulSprDst = { bullets[i].pos.x, bullets[i].pos.y, bulletSprSrc.width,bulletSprSrc.height };
-            Vector2 org = { (float)bulletSprSrc.width / 2, (float)bulletSprSrc.height / 2 };
-            DrawTexturePro(shipTex, bulletSprSrc, bulSprDst, org, rotBulDeg, WHITE);
-        }
-
-        DrawTexturePro(shipTex, (Rectangle){0,0, shipTex.width,shipTex.height},
-            (Rectangle) { shipPos.x, shipPos.y, shipTex.width*shipScale, shipTex.height* shipScale},
-            (Vector2) {(float)shipTex.width* shipScale /2, (float)shipTex.height* shipScale /2 }, rotShipDeg, WHITE);
-        
-        Rectangle thrustSprSrc = { 121, 29, 9, 12 };
-
-        if (thrusters & 0b1000) {
-            DrawTexturePro(effects, thrustSprSrc,
-                (Rectangle) {shipPos.x, shipPos.y, 9, 12},
-                (Vector2) { (float)9 / 2, ((float)12 / 2) - (shipTex.height * shipScale) +6 }, rotShipDeg, WHITE);
-        }
-        if (thrusters & 0b0100) {
-            DrawTexturePro(effects, thrustSprSrc,
-                (Rectangle) { shipPos.x, shipPos.y, 9, 12 },
-                (Vector2) { (float)9 / 2, ((float)12 / 2) - (shipTex.height * shipScale) +4 }, rotShipDeg +180.0f, WHITE);
-        }
-        if (thrusters & 0b0010) {
-            DrawTexturePro(effects, thrustSprSrc,
-                (Rectangle) {
-                shipPos.x, shipPos.y, 9, 12
-            },
-                (Vector2) {
-                (float)9 / 2, ((float)12 / 2) - (shipTex.width * shipScale) + 3
-            }, rotShipDeg - 90.0f, WHITE);
-        }
-        if (thrusters & 0b0001) {
-            DrawTexturePro(effects, thrustSprSrc,
-                (Rectangle) {
-                shipPos.x, shipPos.y, 9, 12
-            },
-                (Vector2) {
-                (float)9 / 2, ((float)12 / 2) - (shipTex.width * shipScale) + 3
-            }, rotShipDeg + 90.0f, WHITE);
-        }
-
-
-    //EndDrawing();
     EndTextureMode();
     BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawCircleLines(GetMouseX(), GetMouseY(), 10, MAROON);
+    ClearBackground(BLUE);
 
-        //DrawCircleLines(GetMouseX(), GetMouseY(), shipTargetRadius-(deadZone/2), MAROON);
-        Rectangle tarSrc = { 0, 0, (float)target.texture.width, -(float)target.texture.height };
-        Rectangle dst = { target.texture.width/2, target.texture.height/2, (float)target.texture.width, (float)target.texture.height };
-        Vector2 org = shipPos; //{GetMouseX(), GetMouseY()};
-        float rotScreenDeg = -screenRot * (180 / PI);
-        DrawTexturePro(target.texture, tarSrc, dst, org, rotScreenDeg, WHITE);
+    BeginMode3D(camera);
+    //DrawCube((Vector3) { 0, 0, 0 }, 1, 1, 1, WHITE);
+    DrawMesh(quad, LoadMaterialDefault(), MatrixIdentity());
+    EndMode3D();
     EndDrawing();
     //----------------------------------------------------------------------------------  
 }
