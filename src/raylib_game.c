@@ -60,6 +60,8 @@ static float screenRot = 0;
 
 Vector3 cameraUp = { 0.0f, -1.0f, 0.0f };
 
+
+
 typedef struct Phys {
     Vector2 pos;
     Vector2 dir;
@@ -75,6 +77,12 @@ typedef struct playerShip {
 
 
 static Phys ship = {
+    .pos = {0,0,},
+    .dir = {0,-1,},
+    .vel = 0
+};
+
+static Phys cam = {
     .pos = {0,0,},
     .dir = {0,-1,},
     .vel = 0
@@ -214,20 +222,26 @@ void UpdateDrawFrame(void)
     Vector2 leftNormal = Vector2Normalize((Vector2) { ship.dir.y, -ship.dir.x });
     Vector2 rightNormal = Vector2Normalize((Vector2) { -ship.dir.y, ship.dir.x });
 
+    float lookAheadMulti = 0;
+
     if (IsKeyDown(KEY_W)) {
         ship.pos = Vector2Add(ship.pos, Vector2Scale(ship.dir, velocity));
+        lookAheadMulti = 1;
         //thrusters |= 0b1000;
     }
     if (IsKeyDown(KEY_S)) {
         ship.pos = Vector2Add(ship.pos, Vector2Scale(ship.dir, -velocity));
+        lookAheadMulti = -1;
         //thrusters |= 0b0100;
     }
     if (IsKeyDown(KEY_A)) {
         ship.pos = Vector2Add(ship.pos, Vector2Scale(rightNormal, velocity));
+        //lookAheadMulti = 1;
         //thrusters |= 0b0010;
     }
     if (IsKeyDown(KEY_D)) {
         ship.pos = Vector2Add(ship.pos, Vector2Scale(leftNormal, velocity));
+        //lookAheadMulti = 1;
         //thrusters |= 0b0001;
     }
 
@@ -237,20 +251,40 @@ void UpdateDrawFrame(void)
 
     Vector2 RelativeCursor = Vector2Normalize(Vector2Subtract(ScreenSpaceCursor, ScreenSpaceOrigin));
     float CursorAngle = -Vector2Angle((Vector2) { 0, -1 }, RelativeCursor);
-    float rotMulti = 0.01f;
-    float cameraRot = CursorAngle * rotMulti;
+    float rotMulti = 1.0f;
+    float cameraRot = CursorAngle;// *rotMulti;
 
 
 
-    cameraUp = (Vector3){ ship.dir.x, ship.dir.y, 0.0f };
+    
 
     float mouseXNDC = (GetMouseX() / (float)SCREENWIDTH) * 2.0f - 1.0f;
     float mouseYNDC = ((SCREENHEIGHT - GetMouseY()) / (float)SCREENHEIGHT) * 2.0f - 1.0f;
 
+    float cameraMaxDistErr = 0.1f;
+    float lookAhead = 0.5f * lookAheadMulti;
+    Vector2 camTar = Vector2Add(ship.pos, Vector2Scale(ship.dir, lookAhead));
+
+    float DistErr = Vector2Distance(camTar, cam.pos);
+    float camVel = (DistErr / cameraMaxDistErr)* velocity;
+    Vector2 camTarDir = Vector2Subtract(camTar, cam.pos);
+    cam.pos = Vector2Add(cam.pos, Vector2Scale(camTarDir, camVel));
+
+    float cameraMaxAngleErr = 20.0f;
+    float cameraAngleErr = Vector2Angle(ship.dir, cam.dir);
+    float camAngleVel = fabs(cameraAngleErr / cameraMaxAngleErr);
+    //if (camAngleVel > 1.0f) { camAngleVel = 1.0f; }
+
+    Vector2 newCamDir = Vector2Rotate(cam.dir, cameraAngleErr* camAngleVel);
+    Vector2 altdir = Vector2Rotate(cam.dir, -cameraAngleErr);
+
+
+    cam.dir = newCamDir;
+    cameraUp = (Vector3){ cam.dir.x, cam.dir.y, 0.0f };
 
     Camera camera = { 0 };
-    camera.position = (Vector3){ ship.pos.x, ship.pos.y, 10.0f }; // Camera position
-    camera.target = (Vector3){ ship.pos.x, ship.pos.y, 0.0f };     // Camera looking at point
+    camera.position = (Vector3){ cam.pos.x, cam.pos.y, 10.0f }; // Camera position
+    camera.target = (Vector3){ cam.pos.x, cam.pos.y, 0.0f };     // Camera looking at point
     camera.up = cameraUp;          // Camera up vector (rotation towards target)  
     camera.fovy = 1;// Camera field-of-view Y
     camera.projection = CAMERA_ORTHOGRAPHIC;                   // Camera mode type
@@ -259,9 +293,13 @@ void UpdateDrawFrame(void)
 
     Vector3 mouseWorld = Vector3Transform((Vector3) { mouseXNDC, mouseYNDC, 0.0f }, invCam);
     Vector2 mouseWorld2D = { mouseWorld.x,mouseWorld.y };
-    Vector2 tarDir = Vector2Subtract(mouseWorld2D, ship.pos);
-
-    ship.dir = Vector2Lerp(ship.dir, tarDir, rotMulti);
+    Vector2 tarDir = Vector2Normalize(Vector2Subtract(mouseWorld2D, ship.pos));
+    float angleErr = -Vector2Angle(ship.dir, tarDir);
+    if (angleErr > 0.07f) { angleErr = 0.07f; }
+    if (angleErr < -0.07f) { angleErr = -0.07f; }
+    Vector2 newDirAngle = Vector2Rotate(ship.dir, angleErr * rotMulti);
+    Vector2 newDir = Vector2Lerp(ship.dir, tarDir, rotMulti);
+    ship.dir = Vector2Normalize(newDirAngle);
 
 
    
@@ -285,7 +323,7 @@ void UpdateDrawFrame(void)
     DrawMesh(quad, quadTex, shipMtx);
     EndMode3D();
     char str[100];
-    sprintf(str, "rotAngle: %f", cameraRot);
+    sprintf(str, "rotAngle: %f", angleErr);
     DrawText(str, 0, 0, 30, RED);
 
     sprintf(str, "mouse pos scrn: %i,%i", GetMouseX(), GetMouseY());
