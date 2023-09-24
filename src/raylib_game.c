@@ -127,10 +127,10 @@ Mesh GenMeshTexQuadBasic(Rectangle src, Vector2 texSize) {
     mesh.normals = (float*)RL_MALLOC(mesh.vertexCount * 3 * sizeof(float));
     mesh.indices = (unsigned short*)RL_MALLOC(mesh.triangleCount * 3 * sizeof(unsigned short));
 
-    float v[12] = { 0.5f,  0.5f, 0.0f ,
-                    0.5f, -0.5f, 0.0f,
-                    -0.5f, -0.5f, 0.0f,
-                    -0.5f,  0.5f, 0.0f };
+    float v[12] = { 0.5f * quadSize.x,  0.5f * quadSize.y, 0.0f ,
+                    0.5f * quadSize.x, -0.5f * quadSize.y, 0.0f,
+                    -0.5f * quadSize.x, -0.5f * quadSize.y, 0.0f,
+                    -0.5f * quadSize.x,  0.5f * quadSize.y, 0.0f };
 
     memcpy(mesh.vertices, v, 12 * sizeof(float));
 
