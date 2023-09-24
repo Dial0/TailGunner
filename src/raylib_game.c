@@ -103,7 +103,7 @@ static RenderTexture2D target = { 0 };  // Initialized at init
 static Mesh quad;
 static Mesh bulQuad;
 static Material quadTex;
-static Material bulQuadTex
+static Material bulQuadTex;
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
