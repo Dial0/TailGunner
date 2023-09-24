@@ -112,6 +112,53 @@ static Material testMat;
 //----------------------------------------------------------------------------------
 static void UpdateDrawFrame(void);      // Update and Draw one frame
 
+Mesh GenMeshTexQuadBasic(Rectangle src, Vector2 texSize) {
+
+    Vector2 texelSize = { 1 / texSize.x,1 / texSize.y };
+    Rectangle quadTexSrc = {src.x* texelSize.x, 1- src.y * texelSize.y,src.width * texelSize.x,src.height * texelSize.y };
+    Vector2 quadSize = { src.width / (float)SCREENHEIGHT, src.height / (float)SCREENHEIGHT };
+
+    Mesh mesh = { 0 };
+
+    mesh.vertexCount = 4;
+    mesh.triangleCount = 2;
+    mesh.vertices = (float*)RL_MALLOC(mesh.vertexCount * 3 * sizeof(float));
+    mesh.texcoords = (float*)RL_MALLOC(mesh.vertexCount * 2 * sizeof(float));
+    mesh.normals = (float*)RL_MALLOC(mesh.vertexCount * 3 * sizeof(float));
+    mesh.indices = (unsigned short*)RL_MALLOC(mesh.triangleCount * 3 * sizeof(unsigned short));
+
+    float v[12] = { 0.5f,  0.5f, 0.0f ,
+                    0.5f, -0.5f, 0.0f,
+                    -0.5f, -0.5f, 0.0f,
+                    -0.5f,  0.5f, 0.0f };
+
+    memcpy(mesh.vertices, v, 12 * sizeof(float));
+
+    float t[8] = { 1.0f, 1.0f,
+                   1.0f, 0.0f,
+                   0.0f, 0.0f,
+                   0.0f, 1.0f, };
+
+    memcpy(mesh.texcoords, t, 8 * sizeof(float));
+
+    float n[12] = { 0.0f,  0.0f, 1.0f,
+                    0.0f,  0.0f, 1.0f,
+                    0.0f,  0.0f, 1.0f,
+                    0.0f,  0.0f, 1.0f };
+
+    memcpy(mesh.normals, n, 12 * sizeof(float));
+
+    unsigned short i[6] = {0,3,2,2,1,0};
+
+
+    memcpy(mesh.indices, i, 6 * sizeof(unsigned short));
+
+    UploadMesh(&mesh, false);
+
+    return mesh;
+}
+
+
 Mesh GenMeshTexQuad(Rectangle src, Vector2 texSize) {
 
     Vector2 texelSize = { 1 / texSize.x,1 / texSize.y };
@@ -176,7 +223,7 @@ int main(void)
     effects = LoadTexture("resources/effects.png");
     shipTargetRadius = 50;
 
-    quad = GenMeshTexQuad((Rectangle) { 0,0,19,27 }, (Vector2) { shipTex.width, shipTex.height });
+    quad = GenMeshTexQuadBasic((Rectangle) { 0,0,19,27 }, (Vector2) { shipTex.width, shipTex.height });
     bulQuad = GenMeshTexQuad((Rectangle) { 4, 42, 4, 11 }, (Vector2) { effects.width, effects.height });
 
     quadTex = LoadMaterialDefault();
@@ -356,7 +403,7 @@ void UpdateDrawFrame(void)
     Matrix shipTransMtx = MatrixTranslate(ship.pos.x,ship.pos.y,0);
     shipMtx = MatrixMultiply(shipRotMtx, shipMtx);
     shipMtx = MatrixMultiply(shipMtx, shipTransMtx);
-    DrawMesh(testCube, testMat, shipMtx);
+    DrawMesh(quad, testMat, shipMtx);
     EndMode3D();
     char str[100];
     sprintf(str, "rotAngle: %f", angleErr);
