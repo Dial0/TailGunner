@@ -156,7 +156,7 @@ Mesh GenMeshTexQuad(Rectangle src, Vector2 texSize) {
 int main(void)
 {
 
-    SetTraceLogLevel(LOG_NONE);         // Disable raylib trace log messsages
+    //SetTraceLogLevel(LOG_NONE);         // Disable raylib trace log messsages
 
     static const int screenWidth = SCREENWIDTH;
     static const int screenHeight = SCREENHEIGHT;
