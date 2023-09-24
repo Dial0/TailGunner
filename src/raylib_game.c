@@ -403,7 +403,7 @@ void UpdateDrawFrame(void)
     Matrix shipTransMtx = MatrixTranslate(ship.pos.x,ship.pos.y,0);
     shipMtx = MatrixMultiply(shipRotMtx, shipMtx);
     shipMtx = MatrixMultiply(shipMtx, shipTransMtx);
-    DrawMesh(quad, testMat, shipMtx);
+    DrawMesh(quad, quadTex, shipMtx);
     EndMode3D();
     char str[100];
     sprintf(str, "rotAngle: %f", angleErr);
