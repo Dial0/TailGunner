@@ -166,8 +166,7 @@ int main(void)
 
     static const int screenWidth = SCREENWIDTH;
     static const int screenHeight = SCREENHEIGHT;
-    // Initialization
-    //--------------------------------------------------------------------------------------
+
     InitWindow(screenWidth, screenHeight, "raylib 9yr gamejam");
     target = LoadRenderTexture(screenWidth, screenHeight);
     shipPos = (Vector2){ screenWidth / 2,screenHeight / 2 };
@@ -202,10 +201,11 @@ int main(void)
     //--------------------------------------------------------------------------------------
     
     // TODO: Unload all loaded resources at this point
-
+    UnloadMesh(quad);
+    UnloadMesh(bulQuad);
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
-
+    
     return 0;
 }
 
@@ -284,10 +284,6 @@ void UpdateDrawFrame(void)
     float rotMulti = 1.0f;
     float cameraRot = CursorAngle;// *rotMulti;
 
-
-
-    
-
     float mouseXNDC = (GetMouseX() / (float)SCREENWIDTH) * 2.0f - 1.0f;
     float mouseYNDC = ((SCREENHEIGHT - GetMouseY()) / (float)SCREENHEIGHT) * 2.0f - 1.0f;
 
@@ -330,11 +326,6 @@ void UpdateDrawFrame(void)
     Vector2 newDirAngle = Vector2Rotate(ship.dir, angleErr * rotMulti);
     Vector2 newDir = Vector2Lerp(ship.dir, tarDir, rotMulti);
     ship.dir = Vector2Normalize(newDirAngle);
-
-
-   
-    
-
 
 
     EndTextureMode();
@@ -385,7 +376,6 @@ void UpdateDrawFrame(void)
 
     EndDrawing();
 
-    UnloadMesh(quad);
-    UnloadMesh(bulQuad);
+
     //----------------------------------------------------------------------------------  
 }
