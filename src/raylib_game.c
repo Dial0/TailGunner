@@ -217,7 +217,7 @@ void DrawShip(Vector2 pos, Vector2 tar) {
 
 void UpdateDrawFrame(void)
 {
-    float velocity = 0.01f;
+    float velocity = 0.006f;
 
     Vector2 leftNormal = Vector2Normalize((Vector2) { ship.dir.y, -ship.dir.x });
     Vector2 rightNormal = Vector2Normalize((Vector2) { -ship.dir.y, ship.dir.x });
@@ -245,6 +245,19 @@ void UpdateDrawFrame(void)
         //thrusters |= 0b0001;
     }
 
+    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+        bullets[bulletidx].dir = ship.dir;
+        bullets[bulletidx].pos = ship.pos;
+        bullets[bulletidx].vel = 0.02f;
+        bulletidx += 1;
+        if (bulletidx >= MAX_BULLETS) {
+            bulletidx = 0;
+        }
+    }
+
+    for (int i = 0; i < bulletidx; i++) {
+        bullets[i].pos = Vector2Add(bullets[i].pos, Vector2Scale(bullets[i].dir, bullets[i].vel));
+    }
 
     Vector2 ScreenSpaceCursor = { GetMouseX(), GetMouseY() };
     Vector2 ScreenSpaceOrigin = { SCREENWIDTH/2, SCREENHEIGHT/2 };
@@ -308,12 +321,29 @@ void UpdateDrawFrame(void)
     Material quadTex =  LoadMaterialDefault();
     SetMaterialTexture(&quadTex, MATERIAL_MAP_DIFFUSE, shipTex);
 
+
+    Mesh bulQuad = GenMeshTexQuad((Rectangle) { 4, 42, 4, 11 }, (Vector2) { effects.width, effects.height });
+
+    Material bulQuadTex = LoadMaterialDefault();
+    SetMaterialTexture(&bulQuadTex, MATERIAL_MAP_DIFFUSE, effects);
+
     EndTextureMode();
     BeginDrawing();
     ClearBackground(BLUE);
 
     BeginMode3D(camera);
     DrawCube((Vector3) { 0, 0, -10 }, 1, 1, 1, WHITE);
+
+    for (size_t i = 0; i < bulletidx; i++) {
+        float bulAngle = -Vector2Angle((Vector2) { 0, -1 }, bullets[i].dir);
+        Matrix bulMtx = MatrixIdentity();
+        Matrix bulRotMtx = MatrixRotateZ(bulAngle);
+        Matrix bulTransMtx = MatrixTranslate(bullets[i].pos.x, bullets[i].pos.y, 0);
+        bulMtx = MatrixMultiply(bulRotMtx, bulMtx);
+        bulMtx = MatrixMultiply(bulMtx, bulTransMtx);
+        DrawMesh(bulQuad, bulQuadTex, bulMtx);
+    }
+
     float shipAngle = -Vector2Angle((Vector2) { 0, -1 }, ship.dir);
     Matrix shipMtx = MatrixIdentity();
     Matrix shipRotMtx = MatrixRotateZ(shipAngle);
@@ -346,5 +376,6 @@ void UpdateDrawFrame(void)
     EndDrawing();
 
     UnloadMesh(quad);
+    UnloadMesh(bulQuad);
     //----------------------------------------------------------------------------------  
 }
