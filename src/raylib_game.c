@@ -99,6 +99,12 @@ static int ballMoveDir = 0;
 
 // TODO: Define global variables here, recommended to make them static
 static RenderTexture2D target = { 0 };  // Initialized at init
+
+static Mesh quad;
+static Mesh bulQuad;
+static Material quadTex;
+static Material bulQuadTex
+
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
@@ -168,6 +174,17 @@ int main(void)
     shipTex = LoadTexture("resources/ship.png");
     effects = LoadTexture("resources/effects.png");
     shipTargetRadius = 50;
+
+    quad = GenMeshTexQuad((Rectangle) { 0,0,19,27 }, (Vector2) { shipTex.width, shipTex.height });
+    bulQuad = GenMeshTexQuad((Rectangle) { 4, 42, 4, 11 }, (Vector2) { effects.width, effects.height });
+
+    quadTex = LoadMaterialDefault();
+    SetMaterialTexture(&quadTex, MATERIAL_MAP_DIFFUSE, shipTex);
+    
+    bulQuadTex = LoadMaterialDefault();
+    SetMaterialTexture(&bulQuadTex, MATERIAL_MAP_DIFFUSE, effects);
+
+    
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
 #else
@@ -316,16 +333,9 @@ void UpdateDrawFrame(void)
 
 
    
-    Mesh quad = GenMeshTexQuad((Rectangle) { 0,0,19,27 }, (Vector2) { shipTex.width, shipTex.height });
-
-    Material quadTex =  LoadMaterialDefault();
-    SetMaterialTexture(&quadTex, MATERIAL_MAP_DIFFUSE, shipTex);
+    
 
 
-    Mesh bulQuad = GenMeshTexQuad((Rectangle) { 4, 42, 4, 11 }, (Vector2) { effects.width, effects.height });
-
-    Material bulQuadTex = LoadMaterialDefault();
-    SetMaterialTexture(&bulQuadTex, MATERIAL_MAP_DIFFUSE, effects);
 
     EndTextureMode();
     BeginDrawing();
