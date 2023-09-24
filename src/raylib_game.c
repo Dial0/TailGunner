@@ -104,6 +104,8 @@ static Mesh quad;
 static Mesh bulQuad;
 static Material quadTex;
 static Material bulQuadTex;
+static Mesh testCube;
+static Material testMat;
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -183,6 +185,9 @@ int main(void)
     bulQuadTex = LoadMaterialDefault();
     SetMaterialTexture(&bulQuadTex, MATERIAL_MAP_DIFFUSE, effects);
 
+    testCube = GenMeshCube(1,1,1);
+    testMat = LoadMaterialDefault();
+    SetMaterialTexture(&testMat, MATERIAL_MAP_DIFFUSE, effects);
     
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
@@ -351,7 +356,7 @@ void UpdateDrawFrame(void)
     Matrix shipTransMtx = MatrixTranslate(ship.pos.x,ship.pos.y,0);
     shipMtx = MatrixMultiply(shipRotMtx, shipMtx);
     shipMtx = MatrixMultiply(shipMtx, shipTransMtx);
-    DrawMesh(quad, quadTex, shipMtx);
+    DrawMesh(testCube, testMat, shipMtx);
     EndMode3D();
     char str[100];
     sprintf(str, "rotAngle: %f", angleErr);
