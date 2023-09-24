@@ -221,7 +221,7 @@ void UpdateDrawFrame(void)
 
     Vector2 leftNormal = Vector2Normalize((Vector2) { ship.dir.y, -ship.dir.x });
     Vector2 rightNormal = Vector2Normalize((Vector2) { -ship.dir.y, ship.dir.x });
-
+  
     float lookAheadMulti = 0;
 
     if (IsKeyDown(KEY_W)) {
