@@ -155,9 +155,9 @@ Mesh GenMeshTexQuad(Rectangle src, Vector2 texSize) {
 //------------------------------------------------------------------------------------
 int main(void)
 {
-#if !defined(_DEBUG)
+
     SetTraceLogLevel(LOG_NONE);         // Disable raylib trace log messsages
-#endif
+
     static const int screenWidth = SCREENWIDTH;
     static const int screenHeight = SCREENHEIGHT;
     // Initialization
