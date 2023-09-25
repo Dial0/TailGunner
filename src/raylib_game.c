@@ -114,16 +114,15 @@ static void UpdateDrawFrame(void);      // Update and Draw one frame
 
 inline Vector3 shipCrosshairPos(Vector3 shipPos, Vector3 shipDir, Vector3 mouseWSpos) {
     
-    Vector3 lineDirection = Vector3Normalize(lineDir);
     Vector3 pointRelative = Vector3Subtract(mouseWSpos, shipPos);
-    float t = Vector3DotProduct(pointRelative, lineDirection);
+    float t = Vector3DotProduct(pointRelative, lineDir);
     float minCrosshair = 0.1;
     
     if ( t < minCrosshair ) {
         t = minCrosshair;
     }
     
-    return Vector3Add(shipPos, Vector3Scale(lineDirection, t));
+    return Vector3Add(shipPos, Vector3Scale(lineDir, t));
 }
 
 Mesh GenMeshTexQuadBasic(Rectangle src, Vector2 texSize) {
