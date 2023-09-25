@@ -435,8 +435,12 @@ void UpdateDrawFrame(void)
     sprintf(str, "mouse pos wrld: %f,%f", mouseWorld.x, mouseWorld.y);
     DrawText(str, 0, 90, 30, RED);
 
-    DrawCircleLines(GetMouseX(), GetMouseY(), 10, MAROON);
-
+    Vector3 crosshairW = shipCrosshairPos((Vector3){ship.pos.x,ship.pos.y,0},
+                                          (Vector3){ship.dir.x,ship.dir.y,0},
+                                          (Vector3){mouseWorld.x, mouseWorld.y,0});
+    Vector2 crosshair = GetWorldToScreen(crosshairW,camera);
+    DrawCircleLines(crosshair.x, crosshair.y, 10, MAROON);
+    DrawCircleLines(GetMouseX(), GetMouseY(), 10, BLUE);
 
 
     EndDrawing();
