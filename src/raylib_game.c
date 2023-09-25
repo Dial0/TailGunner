@@ -112,6 +112,22 @@ static Material testMat;
 //----------------------------------------------------------------------------------
 static void UpdateDrawFrame(void);      // Update and Draw one frame
 
+inline Vector3 nearestPointOnLine(Vector3 l1, Vector3 l2, Vector3 p) {
+    Vector3 lineDirection = Vector3Normalize(Vector3Subtract(l2, l1));
+    Vector3 pointDirection = Vector3Subtract(p, l1);
+
+    float distance = Vector3Distance(l1, l2);
+    //float distance = Vector3DotProduct(pointDirection, lineDirection);
+    float t = Vector3DotProduct(pointDirection, lineDirection);
+    if (t < 0.0f) {
+        return l1;
+    }
+    if (t > distance) {
+        return l2;
+    }
+    return Vector3Add(l1, Vector3Scale(lineDirection, t));
+}
+
 Mesh GenMeshTexQuadBasic(Rectangle src, Vector2 texSize) {
 
     Vector2 texelSize = { 1 / texSize.x,1 / texSize.y };
